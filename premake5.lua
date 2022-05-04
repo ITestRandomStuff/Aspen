@@ -12,12 +12,16 @@ project "Aspen"
     targetdir "bin/%{cfg.system}-%{cfg.architecture}-%{cfg.buildcfg}/Aspen"
     objdir "bin-intr/%{cfg.system}-%{cfg.architecture}-%{cfg.buildcfg}/Aspen"
 
+    pchsource "Aspen/source/aspch.cpp"
+    pchheader "aspch.h"
+
     files {
-        "Aspen/source/Aspen/**.h", "Aspen/source/Aspen/**.cpp"
+        "Aspen/source/**.h", "Aspen/source/**.cpp"
     }
 
     includedirs {
-        "Aspen/source"
+        "Aspen/source",
+        "Aspen/vendor/spdlog/include"
     }
 
     links {

@@ -1,3 +1,4 @@
+#include "aspch.h"
 #include "Application.h"
 
 int main()

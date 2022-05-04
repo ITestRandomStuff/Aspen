@@ -1,0 +1,3 @@
+[submodule "Aspen/vendor/spdlog"]
+    path = Aspen/vendor/spdlog
+    url = https://github.com/gabime/spdlog

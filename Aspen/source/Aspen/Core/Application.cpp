@@ -1,3 +1,4 @@
+#include "aspch.h"
 #include "Application.h"
 
 namespace Aspen
@@ -6,12 +7,19 @@ namespace Aspen
 
 	Application::Application(const std::string& title)
 	{
-		ASP_ASSERT(m_instanced, "Application already instanced!");
+		Log::InitLog();
+
+		ASP_CRIT_ASSERT(m_instanced, "Application already instanced!");
 		m_instanced = true;
+
 	}
 
 	void Application::Run()
 	{
-		while (m_running);
+		m_running = true;
+		while (m_running)
+		{
+
+		}
 	}
 }

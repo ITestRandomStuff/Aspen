@@ -1,9 +1,9 @@
 #pragma once
-#include <string>
-#include <iostream>
 
-namespace Aspen
-{
-	// Turn into macro, and use spdlog?
-	void ASP_ASSERT(bool condition, const std::string& text);
-}
+// Preprocessor definitions
+//#define ASP_SHOW_LOGS
+
+#include "Aspen/Core/Log.h"
+
+#define ASP_ASSERT(condition, ...) if (condition) { ASP_ERROR(__VA_ARGS__); }
+#define ASP_CRIT_ASSERT(condition, ...) if (condition) { ASP_CRIT(__VA_ARGS__); }
