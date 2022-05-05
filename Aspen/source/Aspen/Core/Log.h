@@ -1,7 +1,7 @@
 #pragma once
 
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/ansicolor_sink.h"
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/ansicolor_sink.h>
 
 namespace Aspen
 {
@@ -13,6 +13,7 @@ namespace Aspen
 
 	private:
 		static std::shared_ptr<spdlog::logger> s_logger;
+		static bool s_logInit;
 	};
 }
 

@@ -4,9 +4,13 @@
 namespace Aspen
 {
 	std::shared_ptr<spdlog::logger> Log::s_logger;
+	bool Log::s_logInit = false;
 
 	void Log::InitLog()
 	{
+		if (s_logInit) return;
+		s_logInit = true;
+
 		auto sink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>(spdlog::color_mode::always);
 		sink->set_pattern("%^[%T] %n: %v%$");	// [23:59:59] Aspen: Hello!
 

@@ -5,7 +5,7 @@ workspace "Aspen"
 project "Aspen"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++17"
+    cppdialect "C++20"  -- Using C++20 for std::erase_if
 
     location "Aspen"
 
@@ -21,11 +21,14 @@ project "Aspen"
 
     includedirs {
         "Aspen/source",
-        "Aspen/vendor/spdlog/include"
+        "Aspen/vendor",
+        "Aspen/vendor/spdlog/include",
+        "Aspen/vendor/GLFW/include"
     }
 
     links {
-        "opengl32.lib"
+        "opengl32.lib",
+        "Aspen/vendor/GLFW/lib-vc2022/glfw3_mt.lib"
     }
 
     filter "configurations:Debug"

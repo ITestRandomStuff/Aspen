@@ -3,7 +3,7 @@
 
 int main()
 {
-	auto* app = new Aspen::Application();
+	auto* app = new Aspen::Application("App");
 	app->Run();
 
 	delete app;
