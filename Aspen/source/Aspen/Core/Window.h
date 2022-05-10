@@ -1,49 +1,51 @@
 #pragma once
 
-#include "Aspen/Core/Core.h"
-#include <GLFW/glfw3.h>
+#include <glfw/glfw3.h>
 
 namespace Aspen
 {
 	class Window
 	{
 	public:
-		Window(
-			uint32_t width = 640,
-			uint32_t height = 480,
-			const std::string& title = "Window",
-			const std::string& iconPath = "");
-
+		Window(uint32_t width, uint32_t height, const std::string& title);
 		~Window();
 
-		void OnUpdate();
+		void CloseWindow();
 
+		//======| Events |======//
+
+		void OnUpdate();
+		
 		void OnWindowResize(uint32_t width, uint32_t height);
-		void OnWindowReposition(int posX, int posY);
+		void OnWindowPosition(int posx, int posy);
 		void OnWindowClose();
 		void OnWindowFocus(bool focused);
 
-		bool GetWindowFocus() const;
-		void GetWindowSize(uint32_t& width, uint32_t& height) const;
-		void GetWindowPosition(int& x, int& y) const;
-		bool IsWindowClosed() const;
+		void OnWindowIconify(bool iconified);
+		void OnWindowMaximize(bool maximized);
+
+
+		//======| Getters |======//
+
+		void GetWindowSize(uint32_t& width, uint32_t height);
+		void GetWindowPosition(int& posx, int& posy);
+
+		bool IsFocused();
+		bool IsClosed();
+
+		//======| Setters |======//
+		// The icon path is relative to the visual studio project (.vcxproj) file.
+		void SetIcon(const std::string& iconPath);
 
 	private:
-		uint32_t m_width;
-		uint32_t m_height;
-
-		int m_posX;
-		int m_posY;
-
-		std::string m_title;
-
-		GLFWwindow* m_window;
-		GLFWmonitor* m_monitor;
-		GLFWimage m_icon[1];
+		uint32_t m_width, m_height;
+		int m_posx, m_posy;
 
 		bool m_focused;
 		bool m_destroyed = false;
+		std::string m_title;
 
-		static uint8_t s_windows;	// Number of windows
+		GLFWwindow* m_nativeWindow;
+		GLFWimage m_icon[1];
 	};
 }

@@ -1,7 +1,0 @@
-[submodule "Aspen/vendor/spdlog"]
-    path = Aspen/vendor/spdlog
-    url = https://github.com/gabime/spdlog
-
-[submodule "Aspen/vendor/stb"]
-    path = Aspen/vendor/stb
-    url = https://github.com/nothings/stb

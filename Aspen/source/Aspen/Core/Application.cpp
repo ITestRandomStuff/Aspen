@@ -1,54 +1,49 @@
-#include "aspch.h"
+#include <aspch.h>
 #include "Application.h"
+
+#include "Aspen/Debug/Log.h"
+#include <glfw/glfw3.h>
 
 namespace Aspen
 {
-	bool Application::s_instanced = false;
-	bool Application::s_running   = false;
-
-	std::string Application::s_title = "";
-
-	std::vector<std::unique_ptr<Window>> Application::s_windows = {  };
-
 	Application::Application(const std::string& title)
 	{
-		Log::InitLog();
+		int glfwInitSuccess = glfwInit();
+		if (glfwInitSuccess == GLFW_FALSE)
+		{
+			ASP_CRIT("Failed to initialize GLFW.");
+			return;
+		}
 
-		ASP_CRIT_ASSERT(s_instanced, "Application already instanced!");
-		s_instanced = true;
-		s_title = title;
+		m_window = std::make_unique<Window>(640, 480, title.c_str());
+		m_window->SetIcon("source/Aspen/Data/app_icon.png");
 	}
 
 	Application::~Application()
 	{
+		Destroy();
+	}
 
+	void Application::Destroy()
+	{
+		glfwTerminate();
 	}
 
 	void Application::Run()
 	{
-		s_running = true;
-		s_windows.emplace_back(std::make_unique<Window>(640, 480, s_title, "icon.png"));
-
-		while (s_running)
+		m_running = true;
+		while (m_running && !m_window->IsClosed())
 		{
-			// Remove window from vector if deleted.
-			std::erase_if(s_windows, [](std::unique_ptr<Window>& window)
-				{
-					return window->IsWindowClosed();
-				});
-
-			// Update the windows in vector.
-			for (auto& window : s_windows)
-			{
-				window->OnUpdate();
-			}
-
-			// If no windows are open, stop the application from running.
-			if (s_windows.size() == 0)
-			{
-				s_running = false;
-			}
+			OnUpdate();
+			m_window->OnUpdate();
 		}
 
+		m_window.reset();	// Fix GLFW Error 65535
+		m_running = false;
+	}
+
+	Application* CreateApplication(const std::string& title)
+	{
+		return new Application(title);
 	}
 }

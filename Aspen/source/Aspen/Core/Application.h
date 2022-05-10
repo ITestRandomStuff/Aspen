@@ -1,5 +1,4 @@
 #pragma once
-#include "Aspen/Core/Core.h"
 #include "Aspen/Core/Window.h"
 
 namespace Aspen
@@ -7,17 +6,18 @@ namespace Aspen
 	class Application
 	{
 	public:
-		Application(const std::string& title = "Application");
+		Application(const std::string& title);
 		~Application();
 
 		void Run();
+		void Destroy();
+
+		void OnUpdate();
 
 	private:
-		static bool s_instanced;
-		static bool s_running;
-
-		static std::string s_title;
-
-		static std::vector<std::unique_ptr<Window>> s_windows;
+		bool m_running = false;
+		std::unique_ptr<Window> m_window;
 	};
+
+	Application* CreateApplication(const std::string& title);
 }
