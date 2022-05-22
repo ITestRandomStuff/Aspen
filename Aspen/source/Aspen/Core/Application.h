@@ -1,23 +1,43 @@
 #pragma once
+
+#include "Aspen/Events/AppEvents.h"
 #include "Aspen/Core/Window.h"
+
+#include "Aspen/Core/LayerStack.h"
 
 namespace Aspen
 {
 	class Application
 	{
 	public:
-		Application(const std::string& title);
+		Application(
+			uint32_t width = 640, uint32_t height = 480,
+			const std::string& title = "App");
+
 		~Application();
 
-		void Run();
-		void Destroy();
+		void OnEvent(Event& e);
 
-		void OnUpdate();
+		bool OnWindowResize(WindowResizeEvent& e);
+		bool OnWindowPosition(WindowPositionEvent& e);
+		bool OnWindowClose(WindowCloseEvent& e);
+
+		static Application& GetApplication();
+		Window& GetWindow();
+
+		void Run();
 
 	private:
-		bool m_running = false;
-		std::unique_ptr<Window> m_window;
+		bool m_Running = false;
+		std::unique_ptr<Window> m_Window;
+
+		LayerStack m_LayerStack;
+		float m_LastFrameTime;
+
+		static Application* s_Instance;	// To get our instance of the application.
 	};
 
-	Application* CreateApplication(const std::string& title);
+	Application* CreateApplication(
+		uint32_t width = 640, uint32_t height = 480,
+		const std::string& title = "App");
 }

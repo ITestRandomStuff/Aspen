@@ -1,202 +1,141 @@
 #include "aspch.h"
 #include "Window.h"
 
-// STB_IMAGE_IMPLEMENTATION has to be in a .c or a .cpp file.
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image/stb_image.h>
-
 #include "Aspen/Debug/Log.h"
+#include "Aspen/Events/AppEvents.h"
 
-#define CAST_VOIDPTR(ptr) (void*)ptr
+#include "glad/glad.h"
 
 namespace Aspen
 {
+	uint8_t Window::s_WindowCount = 0;
+
 	Window::Window(uint32_t width, uint32_t height, const std::string& title)
-		:m_width(width), m_height(height), m_title(title)
 	{
-		glfwSetErrorCallback([](int err, const char* desc)
-			{
-				ASP_ERROR("GLFW Error " + std::to_string(err) + ", " + desc);
-			}
-		);
+		// Set window data.
+		m_WindowData.size.x = width;
+		m_WindowData.size.y = height;
+		m_WindowData.title = title;
 
-		m_nativeWindow = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
-		if (!m_nativeWindow)
+		// Initialize GLFW if no windows have been created.
+		if (s_WindowCount == 0)
 		{
-			glfwTerminate();
-			ASP_CRIT("Failed to create a window.");
+			int glfwInitSuccess = glfwInit();
+			ASP_CRIT_ASSERT(!glfwInitSuccess, "Failed to initialize GLFW.");
 
-			return;
+			// Set the error callback.
+			glfwSetErrorCallback([](int err, const char* desc)
+				{
+					ASP_ERROR("GLFW Error" + std::to_string(err) + ", " + desc);
+				}
+			);
 		}
 
-		glfwSetWindowUserPointer(m_nativeWindow, this);
+		// Create window with GLFW.
+		m_nativeWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+		ASP_CRIT_ASSERT(m_nativeWindow == NULL, "Failed to create window.");
+
+		// Set window data position.
+		glfwGetWindowPos(m_nativeWindow, &m_WindowData.position.x, &m_WindowData.position.y);
+
+		// Make context current.
 		glfwMakeContextCurrent(m_nativeWindow);
+		SetVSync(true);
 
-		glfwSetWindowSizeCallback(m_nativeWindow,
-			[](GLFWwindow* natwindow, int width, int height)
+		// Set window user pointer.
+		glfwSetWindowUserPointer(m_nativeWindow, &m_WindowData);
+
+		// Initialize GLAD.
+		int gladSuccess = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		ASP_CRIT_ASSERT(!gladSuccess, "Failed to initialize GLAD.");
+
+		// Set event callbacks.
+		glfwSetWindowSizeCallback(m_nativeWindow, [](GLFWwindow* glfwWindow, int width, int height)
 			{
-				Window* window = (Window*)glfwGetWindowUserPointer(natwindow);
-				window->OnWindowResize(width, height);
+				WindowData& data = *(WindowData*) glfwGetWindowUserPointer(glfwWindow);
+				data.size.x = width;
+				data.size.y = height;
+
+				WindowResizeEvent resizeEvent(width, height);
+				data.eventCallback(resizeEvent);
 			}
 		);
 
-		glfwSetWindowPosCallback(m_nativeWindow,
-			[](GLFWwindow* natwindow, int posx, int posy)
+		glfwSetWindowPosCallback(m_nativeWindow, [](GLFWwindow* glfwWindow, int x, int y)
 			{
-				Window* window = (Window*)glfwGetWindowUserPointer(natwindow);
-				window->OnWindowPosition(posx, posy);
+				WindowData& data = *(WindowData*) glfwGetWindowUserPointer(glfwWindow);
+				data.position.x = x;
+				data.position.y = y;
+
+				WindowPositionEvent positionEvent(x, y);
+				data.eventCallback(positionEvent);
 			}
 		);
 
-		glfwSetWindowCloseCallback(m_nativeWindow,
-			[](GLFWwindow* natwindow)
+		glfwSetWindowCloseCallback(m_nativeWindow, [](GLFWwindow* glfwWindow)
 			{
-				Window* window = (Window*)glfwGetWindowUserPointer(natwindow);
-				window->OnWindowClose();
+				WindowData& data = *(WindowData*) glfwGetWindowUserPointer(glfwWindow);
+
+				WindowCloseEvent closeEvent;
+				data.eventCallback(closeEvent);
 			}
 		);
 
-		glfwSetWindowFocusCallback(m_nativeWindow,
-			[](GLFWwindow* natwindow, int focused)
-			{
-				Window* window = (Window*)glfwGetWindowUserPointer(natwindow);
-				window->OnWindowFocus(focused == GLFW_TRUE);
-			}
-		);
-
-		glfwSetWindowIconifyCallback(m_nativeWindow,
-			[](GLFWwindow* natwindow, int iconified)
-			{
-				Window* window = (Window*)glfwGetWindowUserPointer(natwindow);
-				window->OnWindowIconify(iconified == GLFW_TRUE);
-			}
-		);
-
-		glfwSetWindowMaximizeCallback(m_nativeWindow,
-			[](GLFWwindow* natwindow, int maximized)
-			{
-				Window* window = (Window*)glfwGetWindowUserPointer(natwindow);
-				window->OnWindowMaximize(maximized == GLFW_TRUE);
-			}
-		);
+		// Increment window count.
+		++s_WindowCount;
 	}
 
 	Window::~Window()
 	{
-		CloseWindow();
+		glfwDestroyWindow(m_nativeWindow);
+		--s_WindowCount;
+
+		if (s_WindowCount == 0)
+		{
+			glfwTerminate();
+		}
 	}
 
-	void Window::CloseWindow()
-	{
-		glfwDestroyWindow(m_nativeWindow);
-		stbi_image_free(m_icon[0].pixels);
-	}
-	
-	//==============================================//
-	//==================| Events |==================//
-	//==============================================//
+	//==========| Events |=========//
 
 	void Window::OnUpdate()
 	{
-		glfwPollEvents();
 		glfwSwapBuffers(m_nativeWindow);
+		glfwPollEvents();
 	}
 
-	void Window::OnWindowResize(uint32_t width, uint32_t height)
+	//==========| Setters |==========//
+
+	void Window::SetEventCallback(const std::function<void(Event&)>& clbk)
 	{
-		m_width = width;
-		m_height = height;
-		ASP_LOG("Window size (" + std::to_string(width) + ", " + std::to_string(height) + ")");
-	}
-	
-	void Window::OnWindowPosition(int posx, int posy)
-	{
-		m_posx = posx;
-		m_posy = posy;
-		ASP_LOG("Window position (" + std::to_string(posx) + ", " + std::to_string(posy) + ")");
+		m_WindowData.eventCallback = clbk;
 	}
 
-	void Window::OnWindowClose()
+	void Window::SetVSync(bool enabled)
 	{
-		m_destroyed = true;
-		ASP_LOG("Window closed.");
+		m_WindowData.vsync = enabled;
+		glfwSwapInterval((int)enabled);
 	}
 
-	void Window::OnWindowFocus(bool focused)
+	//==========| Getters |==========//
+
+	bool Window::IsVSync() const
 	{
-		m_focused = focused;
-		if (focused)
-		{
-			ASP_LOG("Window focused.");
-		}
-		else
-		{
-			ASP_LOG("Window not focused.");
-		}
+		return m_WindowData.vsync;
 	}
 
-	void Window::OnWindowIconify(bool iconified)
+	Vector2i Window::GetPosition() const
 	{
-		if (iconified)
-		{
-			ASP_LOG("Window has been iconified (minimized).");
-		}
-		else
-		{
-			ASP_LOG("Window has been restored.");
-		}
+		return m_WindowData.position;
 	}
 
-	void Window::OnWindowMaximize(bool maximized)
+	Vector2<uint32_t> Window::GetSize() const
 	{
-		if (maximized)
-		{
-			ASP_LOG("Window has been maximized.");
-		}
-		else
-		{
-			ASP_LOG("Window has been restored.");
-		}
+		return m_WindowData.size;
 	}
 
-	//==============================================//
-	//=================| Getter |===================//
-	//==============================================//
-
-	void Window::GetWindowSize(uint32_t& width, uint32_t height)
+	GLFWwindow* Window::GetNativeWindow()
 	{
-		width = m_width;
-		height = m_height;
-	}
-
-	void Window::GetWindowPosition(int& posx, int& posy)
-	{
-		posx = m_posx;
-		posy = m_posy;
-	}
-
-	bool Window::IsFocused()
-	{
-		return m_focused;
-	}
-
-	bool Window::IsClosed()
-	{
-		return m_destroyed;
-	}
-
-	//==============================================//
-	//=================| Setter |===================//
-	//==============================================//
-
-	void Window::SetIcon(const std::string& iconPath)
-	{
-		m_icon[0].pixels = stbi_load(iconPath.c_str(), &m_icon->width, &m_icon->height, 0, 4);
-		if (m_icon[0].pixels)
-		{
-			glfwSetWindowIcon(m_nativeWindow, 1, m_icon);
-		}
+		return m_nativeWindow;
 	}
 }
-
-#undef CAST_VOIDPTR

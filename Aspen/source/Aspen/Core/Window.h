@@ -1,51 +1,45 @@
 #pragma once
 
-#include <glfw/glfw3.h>
+#include "Aspen/Math/Vector2.h"
+#include "Aspen/Events/EventDispatcher.h"
+
+#include "glfw/glfw3.h"
 
 namespace Aspen
 {
+	struct WindowData
+	{
+		Vector2i position;
+		Vector2<uint32_t> size;
+
+		std::string title;
+		bool vsync;
+
+		std::function<void(Event&)> eventCallback;
+	};
+
 	class Window
 	{
 	public:
-		Window(uint32_t width, uint32_t height, const std::string& title);
+		Window(uint32_t width = 640, uint32_t height = 480, const std::string& title = "Window");
 		~Window();
 
-		void CloseWindow();
-
-		//======| Events |======//
-
 		void OnUpdate();
-		
-		void OnWindowResize(uint32_t width, uint32_t height);
-		void OnWindowPosition(int posx, int posy);
-		void OnWindowClose();
-		void OnWindowFocus(bool focused);
 
-		void OnWindowIconify(bool iconified);
-		void OnWindowMaximize(bool maximized);
+		bool IsVSync() const;
+		Vector2i GetPosition() const;
+		Vector2<uint32_t> GetSize() const;
 
+		GLFWwindow* GetNativeWindow();
 
-		//======| Getters |======//
+		void SetVSync(bool enabled);
+		void SetEventCallback(const std::function<void(Event&)>& clbk);
 
-		void GetWindowSize(uint32_t& width, uint32_t height);
-		void GetWindowPosition(int& posx, int& posy);
-
-		bool IsFocused();
-		bool IsClosed();
-
-		//======| Setters |======//
-		// The icon path is relative to the visual studio project (.vcxproj) file.
-		void SetIcon(const std::string& iconPath);
 
 	private:
-		uint32_t m_width, m_height;
-		int m_posx, m_posy;
-
-		bool m_focused;
-		bool m_destroyed = false;
-		std::string m_title;
-
 		GLFWwindow* m_nativeWindow;
-		GLFWimage m_icon[1];
+
+		WindowData m_WindowData;
+		static uint8_t s_WindowCount;
 	};
 }

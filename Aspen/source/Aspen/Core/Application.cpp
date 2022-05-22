@@ -1,49 +1,95 @@
-#include <aspch.h>
+#include "aspch.h"
 #include "Application.h"
 
 #include "Aspen/Debug/Log.h"
-#include <glfw/glfw3.h>
+#include "Aspen/ImGui/GuiLayer.h"
+
+#include "glad/glad.h"
 
 namespace Aspen
 {
-	Application::Application(const std::string& title)
-	{
-		int glfwInitSuccess = glfwInit();
-		if (glfwInitSuccess == GLFW_FALSE)
-		{
-			ASP_CRIT("Failed to initialize GLFW.");
-			return;
-		}
+	Application* Application::s_Instance = nullptr;
 
-		m_window = std::make_unique<Window>(640, 480, title.c_str());
-		m_window->SetIcon("source/Aspen/Data/app_icon.png");
+	Application::Application(
+		uint32_t width, uint32_t height, const std::string& title)
+	{
+		ASP_ASSERT(s_Instance, "An instance of the application already exists.");
+		s_Instance = this;
+
+		m_Window = std::make_unique<Window>(width, height, title);
+		m_Window->SetEventCallback( ASP_BIND_EVENT(OnEvent) );
+
+		m_LayerStack.PushLayer(new GuiLayer());
+
+		Logger::SetName("Aspen");
 	}
 
 	Application::~Application()
 	{
-		Destroy();
+
 	}
 
-	void Application::Destroy()
+	void Application::OnEvent(Event& e)
 	{
-		glfwTerminate();
+		EventDispatcher dispatcher{ e };
+		dispatcher.Dispatch<WindowResizeEvent>(ASP_BIND_EVENT(OnWindowResize));
+		dispatcher.Dispatch<WindowPositionEvent>(ASP_BIND_EVENT(OnWindowPosition));
+		dispatcher.Dispatch<WindowCloseEvent>(ASP_BIND_EVENT(OnWindowClose));
+	}
+
+	bool Application::OnWindowResize(WindowResizeEvent& resizeEvent)
+	{
+		ASP_LOG("Window resized!");
+		return true;
+	}
+
+	bool Application::OnWindowPosition(WindowPositionEvent& posEvent)
+	{
+		ASP_LOG("Window changed positions.");
+		return true;
+	}
+
+	bool Application::OnWindowClose(WindowCloseEvent& closeEvent)
+	{
+		ASP_LOG("Window closed.");
+		m_Running = false;
+
+		return true;
+	}
+
+	Application& Application::GetApplication()
+	{
+		return *s_Instance;
+	}
+
+	Window& Application::GetWindow()
+	{
+		return *m_Window;
 	}
 
 	void Application::Run()
 	{
-		m_running = true;
-		while (m_running && !m_window->IsClosed())
+		m_Running = true;
+		while (m_Running)
 		{
-			OnUpdate();
-			m_window->OnUpdate();
-		}
+			float time = (float) glfwGetTime();
+			float ts = time - m_LastFrameTime;
+			m_LastFrameTime = time;
+			
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		m_window.reset();	// Fix GLFW Error 65535
-		m_running = false;
+			for (Layer* layer : m_LayerStack)
+			{
+				layer->OnUpdate(ts);
+			}
+
+			m_Window->OnUpdate();
+		}
 	}
 
-	Application* CreateApplication(const std::string& title)
+	Application* CreateApplication(
+		uint32_t width, uint32_t height, const std::string& title)
 	{
-		return new Application(title);
+		return new Application(width, height, title);
 	}
 }

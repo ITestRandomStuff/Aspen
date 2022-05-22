@@ -6,11 +6,12 @@ IncludeDirs = {}
 IncludeDirs["glfw"] = "Aspen/vendor/glfw/include"
 IncludeDirs["glad"] = "Aspen/vendor/glad/include"
 
-IncludeDirs["spdlog"] = "Aspen/vendor/spdlog/include"
-IncludeDirs["stb_image"] = "Aspen/vendor/stb_image/include"
+IncludeDirs["imgui"] = "Aspen/vendor/imgui"
 
 include "Aspen/vendor/glfw"
 include "Aspen/vendor/glad"
+
+include "Aspen/vendor/imgui"
 
 project "Aspen"
     kind "ConsoleApp"
@@ -34,15 +35,24 @@ project "Aspen"
         "%{IncludeDirs.glfw}",
         "%{IncludeDirs.glad}",
 
-        "%{IncludeDirs.spdlog}",
-        "%{IncludeDirs.stb_image}"
+        "%{IncludeDirs.imgui}"
     }
 
     links {
         "opengl32.lib",
         "glfw",
-        "glad"
+        "glad",
+
+        "ImGui"
     }
+
+    filter "system:windows"
+        systemversion "latest"
+
+        defines {
+            "ASP_PLATFORM_WINDOWS",
+            "GLFW_INCLUDE_NONE"
+        }
 
     filter "configurations:Debug"
         defines { "ASP_CONFIG_DEBUG" }

@@ -1,42 +1,26 @@
-#include <aspch.h>
+#include "aspch.h"
 #include "Timer.h"
 
-//#include "Aspen/Debug/Log.h"
+#include <chrono>
 
 namespace Aspen
 {
-	ScopeTimer::ScopeTimer(const std::string& name)
+	Timer::Timer()
 	{
-		m_start = std::chrono::high_resolution_clock::now();
-		m_name = name;
+		m_startTime = std::chrono::high_resolution_clock::now();
 	}
 
-	ScopeTimer::~ScopeTimer()
-	{
-		auto us = std::chrono::duration_cast<std::chrono::microseconds>(
-			std::chrono::high_resolution_clock::now() - m_start
-		).count() * 1.0f;
+	Timer::~Timer() { Stop(); }
 
-		//ASP_LOG("{0}, {1} microseconds", m_name, us);
+	void Timer::Stop()
+	{
+		m_timeElapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+			std::chrono::high_resolution_clock::now() - m_startTime
+		).count();
 	}
 
-
-	StopTimer::StopTimer(const std::string& name)
+	float Timer::TimeElapsed() const
 	{
-		m_start = std::chrono::high_resolution_clock::now();
-		m_name = name;
-	}
-
-	StopTimer::~StopTimer()
-	{
-	}
-
-	void StopTimer::Stop()
-	{
-		auto us = std::chrono::duration_cast<std::chrono::microseconds>(
-			std::chrono::high_resolution_clock::now() - m_start
-			).count() * 1.0f;
-
-		//ASP_LOG("{0}, {1} microseconds", m_name, us);
+		return m_timeElapsed;
 	}
 }
