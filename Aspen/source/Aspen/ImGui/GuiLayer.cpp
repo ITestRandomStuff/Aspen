@@ -17,26 +17,22 @@ namespace Aspen
 	GuiLayer::GuiLayer()
 		:Layer()
 	{
-		ASP_LOG("GuiLayer instanced!");
 	}
 	
 	GuiLayer::~GuiLayer()
 	{
-		ASP_LOG("GuiLayer destroyed!");
 	}
 
 	void GuiLayer::OnAttach()
 	{
-		ASP_LOG("GuiLayer attached!");
 	}
 
 	void GuiLayer::OnDetach()
 	{
-		ASP_LOG("GuiLayer detached!");
-		/*ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 
-		ImGui::DestroyContext();*/
+		ImGui::DestroyContext();
 	}
 
 	void GuiLayer::OnEvent(Event& e)
@@ -54,8 +50,6 @@ namespace Aspen
 		// So i had no option.
 		if (!ImGui::GetCurrentContext())
 		{
-			std::cout << "Created context!\n";
-
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
 

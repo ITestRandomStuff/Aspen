@@ -6,7 +6,9 @@ IncludeDirs = {}
 IncludeDirs["glfw"] = "Aspen/vendor/glfw/include"
 IncludeDirs["glad"] = "Aspen/vendor/glad/include"
 
+IncludeDirs["glm"] = "Aspen/vendor/glm"
 IncludeDirs["imgui"] = "Aspen/vendor/imgui"
+IncludeDirs["spdlog"] = "Aspen/vendor/spdlog/include"
 
 include "Aspen/vendor/glfw"
 include "Aspen/vendor/glad"
@@ -35,7 +37,9 @@ project "Aspen"
         "%{IncludeDirs.glfw}",
         "%{IncludeDirs.glad}",
 
-        "%{IncludeDirs.imgui}"
+        "%{IncludeDirs.glm}",
+        "%{IncludeDirs.imgui}",
+        "%{IncludeDirs.spdlog}"
     }
 
     links {

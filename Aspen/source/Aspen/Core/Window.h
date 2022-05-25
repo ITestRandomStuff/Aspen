@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Aspen/Math/Vector2.h"
+#include <glm/vec2.hpp>
+
+#include "Aspen/Debug/Log.h"
 #include "Aspen/Events/EventDispatcher.h"
 
 #include "glfw/glfw3.h"
@@ -9,8 +11,8 @@ namespace Aspen
 {
 	struct WindowData
 	{
-		Vector2i position;
-		Vector2<uint32_t> size;
+		glm::ivec2 position;
+		glm::u32vec2 size;
 
 		std::string title;
 		bool vsync;
@@ -21,14 +23,14 @@ namespace Aspen
 	class Window
 	{
 	public:
-		Window(uint32_t width = 640, uint32_t height = 480, const std::string& title = "Window");
+		Window(uint32_t width = 640, uint32_t height = 480, const std::string& title = "Window", bool fullscreen = false);
 		~Window();
 
 		void OnUpdate();
 
 		bool IsVSync() const;
-		Vector2i GetPosition() const;
-		Vector2<uint32_t> GetSize() const;
+		glm::ivec2 GetPosition() const;
+		glm::u32vec2 GetSize() const;
 
 		GLFWwindow* GetNativeWindow();
 

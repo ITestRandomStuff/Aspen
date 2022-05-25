@@ -10,7 +10,10 @@ namespace Aspen
 	{
 		WindowResize,
 		WindowPosition,
-		WindowClose
+		WindowClose,
+
+		KeyPressed,
+		KeyReleased
 	};
 
 	// Base Event class.

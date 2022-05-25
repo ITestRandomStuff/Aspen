@@ -13,15 +13,15 @@ namespace Aspen
 	Application::Application(
 		uint32_t width, uint32_t height, const std::string& title)
 	{
+		Logger::Init();
+
 		ASP_ASSERT(s_Instance, "An instance of the application already exists.");
 		s_Instance = this;
 
-		m_Window = std::make_unique<Window>(width, height, title);
+		m_Window = std::make_unique<Window>(width, height, title, false);
 		m_Window->SetEventCallback( ASP_BIND_EVENT(OnEvent) );
 
 		m_LayerStack.PushLayer(new GuiLayer());
-
-		Logger::SetName("Aspen");
 	}
 
 	Application::~Application()
@@ -35,25 +35,40 @@ namespace Aspen
 		dispatcher.Dispatch<WindowResizeEvent>(ASP_BIND_EVENT(OnWindowResize));
 		dispatcher.Dispatch<WindowPositionEvent>(ASP_BIND_EVENT(OnWindowPosition));
 		dispatcher.Dispatch<WindowCloseEvent>(ASP_BIND_EVENT(OnWindowClose));
+
+		dispatcher.Dispatch<KeyPressedEvent>(ASP_BIND_EVENT(OnKeyPressed));
+		dispatcher.Dispatch<KeyReleasedEvent>(ASP_BIND_EVENT(OnKeyReleased));
 	}
 
 	bool Application::OnWindowResize(WindowResizeEvent& resizeEvent)
 	{
-		ASP_LOG("Window resized!");
+		//ASP_LOG("Window resized!");
 		return true;
 	}
 
 	bool Application::OnWindowPosition(WindowPositionEvent& posEvent)
 	{
-		ASP_LOG("Window changed positions.");
+		//ASP_LOG("Window changed positions.");
 		return true;
 	}
 
 	bool Application::OnWindowClose(WindowCloseEvent& closeEvent)
 	{
-		ASP_LOG("Window closed.");
+		//ASP_LOG("Window closed.");
 		m_Running = false;
 
+		return true;
+	}
+
+	bool Application::OnKeyPressed(KeyPressedEvent& pressedEvent)
+	{
+		//ASP_LOG("Key Pressed: {0}", pressedEvent.GetKey());
+		return true;
+	}
+
+	bool Application::OnKeyReleased(KeyReleasedEvent& releasedEvent)
+	{
+		//ASP_LOG("Key Pressed: {0}", releasedEvent.GetKey());
 		return true;
 	}
 
@@ -76,7 +91,8 @@ namespace Aspen
 			float ts = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 			
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			for (Layer* layer : m_LayerStack)
 			{

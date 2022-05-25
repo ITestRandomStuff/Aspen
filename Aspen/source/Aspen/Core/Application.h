@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Aspen/Events/AppEvents.h"
 #include "Aspen/Core/Window.h"
+#include "Aspen/Events/AppEvents.h"
+#include "Aspen/Events/KeyEvents.h"
 
 #include "Aspen/Core/LayerStack.h"
 
@@ -21,6 +22,9 @@ namespace Aspen
 		bool OnWindowResize(WindowResizeEvent& e);
 		bool OnWindowPosition(WindowPositionEvent& e);
 		bool OnWindowClose(WindowCloseEvent& e);
+
+		bool OnKeyPressed(KeyPressedEvent& e);
+		bool OnKeyReleased(KeyReleasedEvent& e);
 
 		static Application& GetApplication();
 		Window& GetWindow();
