@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Aspen/Events/Events.h"
-
 namespace Aspen
 {
 	class Layer
 	{
 	public:
-		Layer();
+		Layer() = default;
+		virtual ~Layer() = default;
 
-		virtual void OnAttach() = 0;
-		virtual void OnDetach() = 0;
+		virtual void OnAttach()		 {  };
+		virtual void OnDetach()		 {  };
 
-		virtual void OnEvent(Event& e) = 0;
-		virtual void OnUpdate(float ts) = 0;
+		virtual void OnUpdate()		 {  };
+
+		virtual void OnRender()		 {  };
 	};
 }

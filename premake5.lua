@@ -9,6 +9,7 @@ IncludeDirs["glad"] = "Aspen/vendor/glad/include"
 IncludeDirs["glm"] = "Aspen/vendor/glm"
 IncludeDirs["imgui"] = "Aspen/vendor/imgui"
 IncludeDirs["spdlog"] = "Aspen/vendor/spdlog/include"
+IncludeDirs["stb_image"] = "Aspen/vendor/stb_image"
 
 include "Aspen/vendor/glfw"
 include "Aspen/vendor/glad"
@@ -39,7 +40,8 @@ project "Aspen"
 
         "%{IncludeDirs.glm}",
         "%{IncludeDirs.imgui}",
-        "%{IncludeDirs.spdlog}"
+        "%{IncludeDirs.spdlog}",
+        "%{IncludeDirs.stb_image}"
     }
 
     links {

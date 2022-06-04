@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Aspen/Core/Window.h"
-#include "Aspen/Events/AppEvents.h"
-#include "Aspen/Events/KeyEvents.h"
+#include "Aspen/Event/WindowEvents.h"
 
 #include "Aspen/Core/LayerStack.h"
 
@@ -11,37 +10,26 @@ namespace Aspen
 	class Application
 	{
 	public:
-		Application(
-			uint32_t width = 640, uint32_t height = 480,
-			const std::string& title = "App");
-
+		Application(uint32_t width, uint32_t height, const std::string& title);
 		~Application();
-
-		void OnEvent(Event& e);
-
-		bool OnWindowResize(WindowResizeEvent& e);
-		bool OnWindowPosition(WindowPositionEvent& e);
-		bool OnWindowClose(WindowCloseEvent& e);
-
-		bool OnKeyPressed(KeyPressedEvent& e);
-		bool OnKeyReleased(KeyReleasedEvent& e);
-
-		static Application& GetApplication();
-		Window& GetWindow();
 
 		void Run();
 
+		void OnEvent(Event& e);
+		bool OnWindowClose(WindowCloseEvent& closeEvent);
+
+		static Application& GetApplication() { return *s_Instance; }
+		Window& GetWindow() { return *m_Window; }
+
 	private:
 		bool m_Running = false;
+
 		std::unique_ptr<Window> m_Window;
-
 		LayerStack m_LayerStack;
-		float m_LastFrameTime;
 
-		static Application* s_Instance;	// To get our instance of the application.
+	private:
+		static Application* s_Instance;
 	};
 
-	Application* CreateApplication(
-		uint32_t width = 640, uint32_t height = 480,
-		const std::string& title = "App");
+	Application* CreateApplication(uint32_t width = 1080, uint32_t height = 720, const std::string& title = "Application");
 }

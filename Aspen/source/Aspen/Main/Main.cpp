@@ -7,7 +7,7 @@
 
 int main(int argc, char** argv)
 {
-	auto* app = Aspen::CreateApplication(640, 480, "App");
+	auto* app = Aspen::CreateApplication(1080, 720, "App");
 	app->Run();
 
 	delete app;

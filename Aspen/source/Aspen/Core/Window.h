@@ -1,21 +1,18 @@
 #pragma once
 
-#include <glm/vec2.hpp>
+#include "Aspen/Math/Vector2.h"
+#include "Aspen/Event/Event.h"
 
-#include "Aspen/Debug/Log.h"
-#include "Aspen/Events/EventDispatcher.h"
-
-#include "glfw/glfw3.h"
+struct GLFWwindow;
 
 namespace Aspen
 {
 	struct WindowData
 	{
-		glm::ivec2 position;
-		glm::u32vec2 size;
-
 		std::string title;
-		bool vsync;
+
+		Vector2<uint32_t> size;
+		Vector2i position;
 
 		std::function<void(Event&)> eventCallback;
 	};
@@ -23,25 +20,20 @@ namespace Aspen
 	class Window
 	{
 	public:
-		Window(uint32_t width = 640, uint32_t height = 480, const std::string& title = "Window", bool fullscreen = false);
+		Window(uint32_t width, uint32_t height, const std::string& title);
 		~Window();
 
 		void OnUpdate();
 
-		bool IsVSync() const;
-		glm::ivec2 GetPosition() const;
-		glm::u32vec2 GetSize() const;
-
-		GLFWwindow* GetNativeWindow();
-
-		void SetVSync(bool enabled);
 		void SetEventCallback(const std::function<void(Event&)>& clbk);
+		void Close();
 
+		GLFWwindow* GetNativeWindow() { return m_NativeWindow; }
 
 	private:
-		GLFWwindow* m_nativeWindow;
-
+		GLFWwindow* m_NativeWindow;
 		WindowData m_WindowData;
+
 		static uint8_t s_WindowCount;
 	};
 }
